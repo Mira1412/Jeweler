@@ -270,19 +270,27 @@ function App() {
       } else if (adminModal === 'deleteProduct') {
         await productService.deleteProduct(adminFormData.id);
       } else if (adminModal === 'addUser') {
-        await userService.register({
+        const payload = {
           userName: adminFormData.userName,
           password: adminFormData.password,
           email: adminFormData.email,
           name: adminFormData.firstName || 'User',
           lastName: adminFormData.lastName || 'Member'
-        });
+        };
+        await userService.register(payload);
       } else if (adminModal === 'editUser') {
+        // Extract role string correctly
+        const roleStr = typeof adminFormData.role === 'object' 
+          ? adminFormData.role.roleName 
+          : (adminFormData.role || 'ROLE_USER');
+          
         const payload = {
           userName: adminFormData.userName,
           userPassword: adminFormData.password,
-          userDetails: { email: adminFormData.email },
-          role: { roleName: adminFormData.role || 'ROLE_USER' }
+          userDetails: { 
+            email: adminFormData.email || adminFormData.userDetails?.email 
+          },
+          role: { roleName: roleStr }
         };
         await userService.updateUser(adminFormData.id, payload);
       } else if (adminModal === 'deleteUser') {

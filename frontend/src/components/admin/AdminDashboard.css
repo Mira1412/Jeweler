@@ -253,11 +253,24 @@
   margin-bottom: 6px;
 }
 
-.adm-form-group input, .adm-form-group select {
+.adm-form-group input, .adm-form-group select, .adm-form-group textarea {
   width: 100%;
   background: #0f172a;
   border: 1px solid #334155;
   color: white;
   padding: 10px;
   border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.adm-form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.adm-form-group input:focus, .adm-form-group select:focus, .adm-form-group textarea:focus {
+  border-color: #4f46e5;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
 }

@@ -157,8 +157,30 @@ const AdminDashboard = ({
                         <input name="productName" value={adminFormData.productName || ''} onChange={handleAdminInputChange} required />
                       </div>
                       <div className="adm-form-group">
-                        <label>Giá</label>
+                        <label>Giá (₫)</label>
                         <input type="number" name="price" value={adminFormData.price || ''} onChange={handleAdminInputChange} required />
+                      </div>
+                      <div className="adm-form-group">
+                        <label>Mô tả</label>
+                        <textarea name="discription" value={adminFormData.discription || ''} onChange={handleAdminInputChange} />
+                      </div>
+                      <div className="adm-form-group">
+                        <label>Danh mục</label>
+                        <select name="category" value={adminFormData.category || 'Rings'} onChange={handleAdminInputChange}>
+                          <option value="Rings">Nhẫn (Rings)</option>
+                          <option value="Necklaces">Dây chuyền (Necklaces)</option>
+                          <option value="Earrings">Bông tai (Earrings)</option>
+                          <option value="Bracelets">Vòng tay (Bracelets)</option>
+                        </select>
+                      </div>
+                      <div className="adm-form-group">
+                        <label>Số lượng kho</label>
+                        <input type="number" name="availability" value={adminFormData.availability || ''} onChange={handleAdminInputChange} required />
+                      </div>
+                      <div className="adm-form-group">
+                        <label>Hình ảnh</label>
+                        <input type="file" onChange={handleFileChange} accept="image/*" />
+                        {adminFormData.image && <p style={{fontSize: '0.8rem', color: 'var(--text-muted)'}}>File hiện tại: {adminFormData.image}</p>}
                       </div>
                     </>
                   ) : (
@@ -167,14 +189,31 @@ const AdminDashboard = ({
                         <label>Username</label>
                         <input name="userName" value={adminFormData.userName || ''} onChange={handleAdminInputChange} required />
                       </div>
+                      <div className="adm-form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" value={adminFormData.password || ''} onChange={handleAdminInputChange} required={adminModal === 'addUser'} />
+                      </div>
+                      <div className="adm-form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" value={adminFormData.email || (adminFormData.userDetails?.email) || ''} onChange={handleAdminInputChange} required />
+                      </div>
+                      <div className="adm-form-group">
+                        <label>Vai trò</label>
+                        <select name="role" value={adminFormData.role?.roleName || adminFormData.role || 'ROLE_USER'} onChange={handleAdminInputChange}>
+                          <option value="ROLE_USER">Người dùng (USER)</option>
+                          <option value="ROLE_ADMIN">Quản trị viên (ADMIN)</option>
+                        </select>
+                      </div>
                     </>
                   )}
                 </div>
               )}
-              {adminModal.includes('delete') && <p>Bạn có chắc chắn muốn xóa không?</p>}
+              {adminModal.includes('delete') && <p>Bạn có chắc chắn muốn xóa mục này không? Thao tác này không thể hoàn tác.</p>}
               <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px'}}>
                 <button type="button" className="adm-nav-btn" onClick={() => setAdminModal(null)}>Hủy</button>
-                <button type="submit" className="top-btn btn-gold-sm">Xác nhận</button>
+                <button type="submit" className="top-btn btn-gold-sm">
+                  {adminModal.includes('delete') ? 'Xóa' : adminModal.includes('add') ? 'Thêm mới' : 'Cập nhật'}
+                </button>
               </div>
             </form>
           </div>
