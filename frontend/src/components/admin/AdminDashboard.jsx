@@ -96,11 +96,12 @@ const AdminDashboard = ({
                 <thead>
                   {adminSection === 'products' ? (
                     <tr>
-                      <th>ID</th>
-                      <th>Tên</th>
-                      <th>Danh mục</th>
-                      <th>Giá</th>
-                      <th>Thao tác</th>
+                       <th>ID</th>
+                       <th>ẢNH</th>
+                       <th>Tên</th>
+                       <th>Danh mục</th>
+                       <th>Giá</th>
+                       <th>Thao tác</th>
                     </tr>
                   ) : (
                     <tr>
@@ -114,16 +115,25 @@ const AdminDashboard = ({
                 </thead>
                 <tbody>
                   {adminSection === 'products' ? products.map(p => (
-                    <tr key={p.id}>
-                      <td>#{p.id}</td>
-                      <td>{p.productName}</td>
-                      <td>{p.category}</td>
-                      <td>{p.price?.toLocaleString()}₫</td>
-                      <td>
-                        <button className="adm-btn-edit" onClick={() => { setAdminFormData(p); setAdminModal('editProduct'); }}>Sửa</button>
-                        <button className="adm-btn-danger" onClick={() => { setAdminFormData(p); setAdminModal('deleteProduct'); }}>Xóa</button>
-                      </td>
-                    </tr>
+                     <tr key={p.id}>
+                       <td>#{p.id}</td>
+                       <td>
+                         <div className="adm-img-cell">
+                           {p.image ? (
+                             <img src={`http://localhost:8810/uploads/${p.image}`} alt={p.productName} className="adm-img-thumb" />
+                           ) : (
+                             <div className="adm-img-placeholder">💎</div>
+                           )}
+                         </div>
+                       </td>
+                       <td>{p.productName}</td>
+                       <td>{p.category}</td>
+                       <td>{p.price?.toLocaleString()}₫</td>
+                       <td>
+                         <button className="adm-btn-edit" onClick={() => { setAdminFormData(p); setAdminModal('editProduct'); }}>Sửa</button>
+                         <button className="adm-btn-danger" onClick={() => { setAdminFormData(p); setAdminModal('deleteProduct'); }}>Xóa</button>
+                       </td>
+                     </tr>
                   )) : users.map(u => (
                     <tr key={u.id}>
                       <td>#{u.id}</td>
