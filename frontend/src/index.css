@@ -1,0 +1,231 @@
+:root {
+  /* Premium Dark Palette */
+  --bg-deep: #050505;
+  --bg-surface: #0a0a0a;
+  --bg-card: #111111;
+  --bg-elevated: #1a1a1a;
+  
+  --primary-gold: #d4af37;
+  --primary-gold-hover: #f1c40f;
+  --accent-gold: rgba(212, 175, 55, 0.6);
+  --accent-glow: rgba(212, 175, 55, 0.2);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
+  
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-gold: rgba(212, 175, 55, 0.1);
+  
+  --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 30px rgba(212, 175, 55, 0.15);
+  
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', 'Inter', sans-serif;
+
+  font-family: var(--font-main);
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-attachment: fixed;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+/* Container */
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Typography */
+h1, h2, h3, .premium-text {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #d4af37 0%, #f1c40f 50%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Buttons */
+.btn-premium {
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.btn-gold {
+  background: var(--primary-gold);
+  color: var(--bg-deep);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  background: var(--primary-gold-hover);
+  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  border-color: var(--glass-border);
+  color: var(--text-primary);
+}
+
+.btn-outline:hover {
+  background: var(--glass);
+  border-color: var(--primary-gold);
+  color: var(--primary-gold);
+}
+
+/* Top Bar */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  height: 80px;
+  background: rgba(5, 5, 5, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.top-bar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.top-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.top-btn:hover {
+  color: var(--primary-gold);
+  background: var(--glass);
+}
+
+.top-left, .top-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.auth-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--glass-border);
+}
+
+.btn-gold-sm {
+  background: var(--primary-gold) !important;
+  color: var(--bg-deep) !important;
+  font-weight: 700 !important;
+}
+
+.btn-gold-sm:hover {
+  background: var(--primary-gold-hover) !important;
+  transform: translateY(-2px);
+}
+
+.icon {
+  font-size: 1.2rem;
+  margin-right: 4px;
+}
+
+.cart-btn {
+  background: var(--glass-gold);
+  color: var(--primary-gold);
+  border: 1px solid var(--accent-gold);
+}
+
+.logout-btn {
+  color: #ff4d4d;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+}
+
+/* Layout helpers */
+.section-padding {
+  padding: 80px 0;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 0 1rem;
+  }
+  .top-bar-container {
+    padding: 0 1rem;
+  }
+}
+

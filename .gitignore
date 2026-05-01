@@ -1,0 +1,29 @@
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env*
+
+# Java / Spring Boot
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/
+mvnw
+mvnw.cmd
+
+# Redis
+dump.rdb
+redis/data/
+redis_win/data/
+
+# Logs
+*.log
