@@ -1,0 +1,12 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "description": "Dịch vụ xác thực và quên mật khẩu",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "nodemailer": "^6.9.7",
+    "mysql2": "^3.6.5",
+    "cors": "^2.8.5"
+  }
+}
