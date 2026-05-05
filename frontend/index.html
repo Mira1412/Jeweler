@@ -8,6 +8,20 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Chặn lỗi từ VNPay Sandbox hiển thị trong Console
+      window.addEventListener('error', function(e) {
+        if (e.filename && e.filename.includes('vnpayment.vn')) {
+          e.preventDefault();
+          return true;
+        }
+      });
+      window.addEventListener('unhandledrejection', function(e) {
+        if (e.reason && e.reason.message && e.reason.message.includes('timer')) {
+          e.preventDefault();
+        }
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

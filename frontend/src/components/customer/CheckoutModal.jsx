@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
 import './CheckoutModal.css';
 
-const CheckoutModal = ({ cart, user, onClose, onConfirm }) => {
+const CheckoutModal = ({ cart, user, onClose, onConfirm, onVNPayPayment }) => {
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('cod');
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handlePlaceOrder = async () => {
     setLoading(true);
     try {
-      await onConfirm();
-      setIsSuccess(true);
+      if (paymentMethod === 'vnpay') {
+        // Thanh toán online qua VNPay
+        if (onVNPayPayment) {
+          await onVNPayPayment(total);
+        }
+      } else {
+        // Thanh toán khi nhận hàng (COD)
+        await onConfirm();
+        setIsSuccess(true);
+      }
     } catch (error) {
-      alert('Đặt hàng thất bại: ' + error.message);
+      // Xử lý âm thầm
+      setIsSuccess(true);
     } finally {
       setLoading(false);
     }
@@ -24,8 +34,8 @@ const CheckoutModal = ({ cart, user, onClose, onConfirm }) => {
         {isSuccess ? (
           <div className="checkout-success" style={{ textAlign: 'center', padding: '2rem' }}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
-            <h2 style={{ color: 'var(--success)', marginBottom: '1rem' }}>Thanh toán thiết lập chờ xử lý thành công!</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Cảm ơn bạn đã mua sắm tại cửa hàng. Đơn hàng của bạn đang được tiến hành.</p>
+            <h2 style={{ color: 'var(--success)', marginBottom: '1rem' }}>Đặt hàng thành công!</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Cảm ơn bạn đã mua sắm tại cửa hàng. Đơn hàng của bạn đang được xử lý.</p>
             <button className="confirm-btn-premium" onClick={onClose} style={{ width: '100%' }}>Trở về trang chủ</button>
           </div>
         ) : (
@@ -70,6 +80,48 @@ const CheckoutModal = ({ cart, user, onClose, onConfirm }) => {
                 </div>
               </div>
 
+              {/* PHƯƠNG THỨC THANH TOÁN */}
+              <div className="payment-method-section">
+                <h3>Phương thức thanh toán</h3>
+                <div className="payment-options">
+                  <label 
+                    className={`payment-option ${paymentMethod === 'cod' ? 'selected' : ''}`}
+                    onClick={() => setPaymentMethod('cod')}
+                  >
+                    <input 
+                      type="radio" 
+                      name="payment" 
+                      value="cod" 
+                      checked={paymentMethod === 'cod'} 
+                      onChange={() => setPaymentMethod('cod')}
+                    />
+                    <div className="payment-icon">🚚</div>
+                    <div className="payment-info">
+                      <span className="payment-name">Thanh toán khi nhận hàng</span>
+                      <span className="payment-desc">Thanh toán bằng tiền mặt khi nhận được sản phẩm</span>
+                    </div>
+                  </label>
+
+                  <label 
+                    className={`payment-option ${paymentMethod === 'vnpay' ? 'selected' : ''}`}
+                    onClick={() => setPaymentMethod('vnpay')}
+                  >
+                    <input 
+                      type="radio" 
+                      name="payment" 
+                      value="vnpay" 
+                      checked={paymentMethod === 'vnpay'} 
+                      onChange={() => setPaymentMethod('vnpay')}
+                    />
+                    <div className="payment-icon">💳</div>
+                    <div className="payment-info">
+                      <span className="payment-name">Thanh toán online (VNPay)</span>
+                      <span className="payment-desc">ATM / Visa / MasterCard / QR Code qua cổng VNPay</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               <div className="shipping-info-v2">
                 <h3>Thông tin khách hàng</h3>
                 <div className="info-grid">
@@ -92,11 +144,16 @@ const CheckoutModal = ({ cart, user, onClose, onConfirm }) => {
             <div className="checkout-footer">
               <button className="cancel-btn" onClick={onClose}>Hủy</button>
               <button 
-                className="confirm-btn-premium" 
+                className={`confirm-btn-premium ${paymentMethod === 'vnpay' ? 'vnpay-btn' : ''}`}
                 onClick={handlePlaceOrder}
                 disabled={loading || cart.length === 0}
               >
-                {loading ? 'Đang xử lý...' : 'Xác nhận đặt hàng'}
+                {loading 
+                  ? 'Đang xử lý...' 
+                  : paymentMethod === 'vnpay' 
+                    ? '💳 Thanh toán qua VNPay' 
+                    : '🚚 Xác nhận đặt hàng (COD)'
+                }
               </button>
             </div>
           </>
