@@ -12,6 +12,7 @@ import UserPanel from './components/customer/UserPanel'
 import CheckoutModal from './components/customer/CheckoutModal'
 import Cart from './components/customer/Cart'
 import OrderHistory from './components/customer/OrderHistory'
+import ChatBot from './components/customer/ChatBot'
 import { cartService, orderService } from './services/api'
 
 // --- COMPONENT: KẾT QUẢ THANH TOÁN VNPAY ---
@@ -608,6 +609,9 @@ function App() {
             onClose={() => setShowOrderHistory(false)}
           />
         )}
+
+        {/* ChatBot AI - Hiện trên tất cả các trang */}
+        <ChatBot />
       </main>
     </div>
   )
