@@ -123,11 +123,15 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [adminSection, setAdminSection] = useState('stats')
   const [users, setUsers] = useState([])
-  const [orders, setOrders] = useState([
-    { id: 'ORD-1001', customer: 'Nguyễn Văn A', date: '2026-04-10', total: 1500000, status: 'Completed' },
-    { id: 'ORD-1002', customer: 'Trần Thị B', date: '2026-04-11', total: 2750000, status: 'Processing' },
-    { id: 'ORD-1003', customer: 'Lê Văn C', date: '2026-04-11', total: 950000, status: 'Pending' }
-  ])
+  const [orders, setOrders] = useState(() => {
+    const offlineOrders = JSON.parse(localStorage.getItem('offline_orders') || '[]');
+    return [
+      ...offlineOrders,
+      { id: 'ORD-1001', customer: 'Nguyễn Văn A', date: '2026-04-10', total: 1500000, status: 'Completed' },
+      { id: 'ORD-1002', customer: 'Trần Thị B', date: '2026-04-11', total: 2750000, status: 'Processing' },
+      { id: 'ORD-1003', customer: 'Lê Văn C', date: '2026-04-11', total: 950000, status: 'Pending' }
+    ];
+  });
 
   const isAdmin = currentUser?.role?.roleName === 'ROLE_ADMIN'
   const isUser = currentUser?.role?.roleName === 'ROLE_USER'
@@ -257,6 +261,24 @@ function App() {
 
   const handleRegister = async (e) => {
     e.preventDefault()
+    
+    // Tạo user mẫu để luôn hiển thị vào màn hình ngay lập tức (cho cả Online & Offline)
+    const fallbackUser = {
+      id: Date.now(),
+      userName: regData.userName,
+      password: regData.password, // Lưu lại để check login sau này
+      role: { roleName: 'ROLE_USER' },
+      userDetails: { firstName: regData.name || 'User', lastName: regData.lastName || '', email: regData.email }
+    }
+    
+    // Lưu vào danh sách user cục bộ để có thể đăng nhập lại và admin có thể thấy
+    const localUsers = JSON.parse(localStorage.getItem('local_users') || '[]')
+    localUsers.push(fallbackUser)
+    localStorage.setItem('local_users', JSON.stringify(localUsers))
+
+    // Cập nhật vào danh sách hiển thị của Admin ngay lập tức
+    setUsers(prev => [...prev, fallbackUser])
+
     try {
       const newUser = await userService.register(regData)
       setRegMessage('Đăng ký thành công! Đang chuyển hướng...')
@@ -270,24 +292,7 @@ function App() {
         navigate('/')
       }, 1500)
     } catch (err) {
-      // Fallback: Đăng ký cục bộ khi backend chưa chạy
-      const fallbackUser = {
-        id: Date.now(),
-        userName: regData.userName,
-        password: regData.password, // Lưu lại để check login sau này
-        role: { roleName: 'ROLE_USER' },
-        userDetails: { firstName: regData.name || 'User', lastName: regData.lastName || '', email: regData.email }
-      }
-      
-      // Lưu vào danh sách user cục bộ để có thể đăng nhập lại
-      const localUsers = JSON.parse(localStorage.getItem('local_users') || '[]')
-      localUsers.push(fallbackUser)
-      localStorage.setItem('local_users', JSON.stringify(localUsers))
-
-      // Cập nhật vào danh sách hiển thị của Admin ngay lập tức
-      setUsers(prev => [...prev, fallbackUser])
-
-      setRegMessage('Đăng ký thành công! Đang chuyển hướng...')
+      setRegMessage('Đăng ký thành công! (Offline) Đang chuyển hướng...')
       setTimeout(() => {
         setCurrentUser(fallbackUser)
         setIsLoggedIn(true)
@@ -330,18 +335,59 @@ function App() {
   }
 
   const handleConfirmOrder = async () => {
+    // Tạo đơn hàng mới để hiển thị ngay lập tức (chạy cả Online và Offline)
+    const newOrder = {
+      id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+      customer: currentUser?.userDetails?.firstName || currentUser?.userName || 'Khách vãng lai',
+      date: new Date().toISOString().split('T')[0],
+      total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+      status: 'Pending',
+      items: cart.map(item => ({ ...item }))
+    };
+    
+    // Lưu vào LocalStorage
+    const offlineOrders = JSON.parse(localStorage.getItem('offline_orders') || '[]');
+    offlineOrders.unshift(newOrder);
+    localStorage.setItem('offline_orders', JSON.stringify(offlineOrders));
+
+    // Cập nhật giao diện Admin & User
+    setOrders(prev => [newOrder, ...prev]);
+    setUserOrders(prev => [newOrder, ...prev]);
+
     try {
       await orderService.createOrder(currentUser.id, cartId);
       setCart([]);
+      setShowCheckout(false);
+      alert('Đặt hàng thành công!');
     } catch (err) {
-      setCart([]); 
+      setCart([]);
+      setShowCheckout(false);
+      alert('Đặt hàng thành công! (Chế độ Offline)');
     }
   }
 
   // --- THANH TOÁN VNPAY ONLINE ---
   const handleVNPayPayment = async (totalAmount) => {
+    const orderId = `ORD-VN-${Math.floor(1000 + Math.random() * 9000)}`;
+    
+    // Lưu tạm đơn hàng trước khi chuyển sang VNPay
+    const newOrder = {
+      id: orderId,
+      customer: currentUser?.userDetails?.firstName || currentUser?.userName || 'Khách vãng lai',
+      date: new Date().toISOString().split('T')[0],
+      total: totalAmount,
+      status: 'Pending',
+      items: cart.map(item => ({ ...item }))
+    };
+    
+    const offlineOrders = JSON.parse(localStorage.getItem('offline_orders') || '[]');
+    offlineOrders.unshift(newOrder);
+    localStorage.setItem('offline_orders', JSON.stringify(offlineOrders));
+
+    setOrders(prev => [newOrder, ...prev]);
+    setUserOrders(prev => [newOrder, ...prev]);
+
     try {
-      const orderId = 'ORD' + Date.now();
       const res = await axios.post('http://localhost:3004/api/vnpay/create-payment', {
         amount: totalAmount,
         orderId: orderId
@@ -350,9 +396,9 @@ function App() {
         window.location.href = res.data.paymentUrl;
       }
     } catch (err) {
-      // Nếu server VNPay chưa chạy, vẫn cho phép đặt hàng COD
       setCart([]);
       setShowCheckout(false);
+      alert('Hệ thống VNPay đang bảo trì. Đơn hàng đã được ghi nhận dạng Offline!');
     }
   }
 
@@ -374,11 +420,17 @@ function App() {
   const handleOpenOrderHistory = async () => {
     if (!currentUser) return;
     try {
-      const orders = await orderService.getOrdersByUser(currentUser.id);
-      setUserOrders(orders);
+      const apiOrders = await orderService.getOrdersByUser(currentUser.id);
+      setUserOrders(apiOrders);
       setShowOrderHistory(true);
     } catch (err) {
-      setUserOrders([]);
+      // Khi server lỗi, lọc các đơn hàng (offline) của user hiện tại từ danh sách orders chung
+      const offlineUserOrders = orders.filter(
+        o => o.customer === currentUser?.userName || 
+             o.customer === currentUser?.userDetails?.firstName || 
+             o.customer === 'Khách vãng lai'
+      );
+      setUserOrders(offlineUserOrders);
       setShowOrderHistory(true);
     }
   }

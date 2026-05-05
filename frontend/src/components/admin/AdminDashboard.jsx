@@ -84,13 +84,15 @@ const AdminDashboard = ({
         <div className="adm-content">
           {adminSection === 'stats' && renderStats()}
           
-          {(adminSection === 'products' || adminSection === 'users') && (
+          {(adminSection === 'products' || adminSection === 'users' || adminSection === 'orders') && (
             <div className="adm-table-card">
               <div className="adm-table-hdr">
-                <h3>Danh sách {adminSection === 'products' ? 'Sản phẩm' : 'Người dùng'}</h3>
-                <button className="top-btn btn-gold-sm" onClick={() => setAdminModal(adminSection === 'products' ? 'addProduct' : 'addUser')}>
-                  + Thêm mới
-                </button>
+                <h3>Danh sách {adminSection === 'products' ? 'Sản phẩm' : adminSection === 'users' ? 'Người dùng' : 'Đơn hàng'}</h3>
+                {adminSection !== 'orders' && (
+                  <button className="top-btn btn-gold-sm" onClick={() => setAdminModal(adminSection === 'products' ? 'addProduct' : 'addUser')}>
+                    + Thêm mới
+                  </button>
+                )}
               </div>
               <table className="adm-table">
                 <thead>
@@ -103,12 +105,21 @@ const AdminDashboard = ({
                        <th>Giá</th>
                        <th>Thao tác</th>
                     </tr>
-                  ) : (
+                  ) : adminSection === 'users' ? (
                     <tr>
                       <th>ID</th>
                       <th>Username</th>
                       <th>Email</th>
                       <th>Vai trò</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <th>Mã Đơn</th>
+                      <th>Khách hàng</th>
+                      <th>Ngày đặt</th>
+                      <th>Tổng tiền</th>
+                      <th>Trạng thái</th>
                       <th>Thao tác</th>
                     </tr>
                   )}
@@ -134,7 +145,7 @@ const AdminDashboard = ({
                          <button className="adm-btn-danger" onClick={() => { setAdminFormData(p); setAdminModal('deleteProduct'); }}>Xóa</button>
                        </td>
                      </tr>
-                  )) : users.map(u => (
+                  )) : adminSection === 'users' ? users.map(u => (
                     <tr key={u.id}>
                       <td>#{u.id}</td>
                       <td>{u.userName}</td>
@@ -143,6 +154,21 @@ const AdminDashboard = ({
                       <td>
                         <button className="adm-btn-edit" onClick={() => { setAdminFormData(u); setAdminModal('editUser'); }}>Sửa</button>
                         <button className="adm-btn-danger" onClick={() => { setAdminFormData(u); setAdminModal('deleteUser'); }}>Xóa</button>
+                      </td>
+                    </tr>
+                  )) : orders.map(o => (
+                    <tr key={o.id}>
+                      <td>{o.id}</td>
+                      <td>{o.customer}</td>
+                      <td>{o.date}</td>
+                      <td>{o.total?.toLocaleString()}₫</td>
+                      <td>
+                        <span className={`status-badge ${o.status.toLowerCase()}`}>
+                          {o.status === 'Completed' ? 'Hoàn thành' : o.status === 'Processing' ? 'Đang xử lý' : 'Chờ duyệt'}
+                        </span>
+                      </td>
+                      <td>
+                        <button className="adm-btn-edit" onClick={() => alert('Chức năng cập nhật đơn hàng đang bảo trì!')}>Sửa</button>
                       </td>
                     </tr>
                   ))}
