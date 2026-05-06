@@ -122,6 +122,29 @@ const AdminDashboard = ({
 
             <div className="adm-table-card" style={{marginTop: '24px'}}>
               <div className="adm-table-hdr">
+                <h3>Xu hướng Doanh thu 📈</h3>
+              </div>
+              <div className="adm-chart-container">
+                <div className="adm-chart-y">
+                  <span>50M</span>
+                  <span>25M</span>
+                  <span>0</span>
+                </div>
+                <div className="adm-chart-bars">
+                  {[45, 65, 30, 85, 55, 95].map((val, i) => (
+                    <div key={i} className="adm-chart-bar-wrapper">
+                      <div className="adm-chart-bar" style={{ height: `${val}%` }}>
+                        <div className="adm-chart-tooltip">{val}M</div>
+                      </div>
+                      <span className="adm-chart-label">T{i+1}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="adm-table-card" style={{marginTop: '24px'}}>
+              <div className="adm-table-hdr">
                 <h3>Người dùng mới nhất 👥</h3>
               </div>
               <div className="adm-list-simple">
@@ -149,7 +172,7 @@ const AdminDashboard = ({
                     <div className="adm-item-rank">{idx + 1}</div>
                     <div className="adm-img-cell" style={{width: '40px', height: '40px', marginRight: '12px'}}>
                        {p.image ? (
-                         <img src={`http://localhost:8810/uploads/${p.image}`} alt="" className="adm-img-thumb" />
+                         <img src={p.image.startsWith('blob:') || p.image.startsWith('http') ? p.image : `http://localhost:8810/uploads/${p.image}`} alt="" className="adm-img-thumb" />
                        ) : <div className="adm-img-placeholder" style={{fontSize: '0.8rem'}}>💎</div>}
                     </div>
                     <div className="adm-item-info" style={{flex: 1}}>
@@ -239,6 +262,22 @@ const AdminDashboard = ({
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
+                  {adminSection === 'products' && (
+                    <select 
+                      className="adm-nav-btn" 
+                      style={{height: '38px', padding: '0 10px', minWidth: '120px'}}
+                      onChange={(e) => {
+                        // Logic lọc nhanh theo danh mục sẽ được tích hợp vào filteredProducts
+                        setSearchTerm(e.target.value === 'All' ? '' : e.target.value);
+                      }}
+                    >
+                      <option value="All">Tất cả loại</option>
+                      <option value="Nhẫn">Nhẫn</option>
+                      <option value="Dây chuyền">Dây chuyền</option>
+                      <option value="Bông tai">Bông tai</option>
+                      <option value="Đồng hồ">Đồng hồ</option>
+                    </select>
+                  )}
                 </div>
                 {adminSection !== 'orders' && (
                   <button className="top-btn btn-gold-sm" onClick={() => setAdminModal(adminSection === 'products' ? 'addProduct' : 'addUser')}>
@@ -284,7 +323,7 @@ const AdminDashboard = ({
                        <td>
                          <div className="adm-img-cell">
                            {p.image ? (
-                             <img src={`http://localhost:8810/uploads/${p.image}`} alt={p.productName} className="adm-img-thumb" />
+                             <img src={p.image.startsWith('blob:') || p.image.startsWith('http') ? p.image : `http://localhost:8810/uploads/${p.image}`} alt={p.productName} className="adm-img-thumb" />
                            ) : (
                              <div className="adm-img-placeholder">💎</div>
                            )}

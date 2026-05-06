@@ -15,7 +15,7 @@ export const productService = {
       const response = await api.get('/products');
       return response.data;
     } catch (error) {
-      return [];
+      throw error;
     }
   },
   

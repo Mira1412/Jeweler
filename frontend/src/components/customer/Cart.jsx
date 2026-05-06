@@ -25,7 +25,7 @@ const Cart = ({ cart, onRemove, onUpdateQuantity, onCheckout, onClose }) => {
                 <div key={item.id} className="cart-item">
                   <div className="cart-item-img">
                     {item.image ? (
-                      <img src={`http://localhost:8810/uploads/${item.image}`} alt={item.productName} />
+                      <img src={item.image.startsWith('blob:') || item.image.startsWith('http') ? item.image : `http://localhost:8810/uploads/${item.image}`} alt={item.productName} />
                     ) : (
                       <span className="placeholder">💍</span>
                     )}

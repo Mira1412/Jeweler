@@ -280,16 +280,26 @@
   height: 50px;
   border-radius: 10px;
   overflow: hidden;
-  background: rgba(255,255,255,0.05);
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .adm-img-thumb {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* Changed to contain to prevent blurry crops */
+  image-rendering: -webkit-optimize-contrast; /* Crucial for sharpness */
+  image-rendering: crisp-edges;
+  transition: transform 0.4s ease;
+  background: #1e293b;
+}
+
+.adm-img-cell:hover .adm-img-thumb {
+  transform: scale(1.15);
 }
 
 .adm-img-placeholder {
@@ -521,17 +531,88 @@
   }
 }
 
-/* Custom Scrollbar for list */
+/* --- CHART STYLES --- */
+.adm-chart-container {
+  padding: 30px 20px;
+  display: flex;
+  gap: 15px;
+  height: 250px;
+}
+
+.adm-chart-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding-bottom: 25px;
+}
+
+.adm-chart-bars {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0 10px;
+}
+
+.adm-chart-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.adm-chart-bar {
+  width: 70%;
+  max-width: 30px;
+  background: linear-gradient(to top, #4f46e5, #818cf8);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+
+.adm-chart-bar:hover {
+  background: linear-gradient(to top, #d4af37, #f97316);
+  transform: scaleX(1.1);
+}
+
+.adm-chart-tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.adm-chart-bar:hover .adm-chart-tooltip {
+  opacity: 1;
+  top: -35px;
+}
+
+.adm-chart-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Scrollbar and other minor fixes */
 .adm-list-simple {
-  max-height: 350px;
-  overflow-y: auto;
-}
-
-.adm-list-simple::-webkit-scrollbar {
-  width: 4px;
-}
-
-.adm-list-simple::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  max-height: 280px;
 }

@@ -41,9 +41,15 @@
   align-items: center;
   justify-content: center;
   font-size: 3.5rem;
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
   position: relative;
   z-index: 1;
+  animation: pulse-gold 3s infinite alternate;
+}
+
+@keyframes pulse-gold {
+  0% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+  100% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
 }
 
 .welcome-text {
@@ -71,6 +77,41 @@
   color: var(--primary-gold);
 }
 
+/* --- VIP BANNER --- */
+.user-vip-banner {
+  margin-top: 2rem;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(0, 0, 0, 0.4));
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.vip-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.vip-badge {
+  background: var(--primary-gold);
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.vip-banner-content h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
 .user-quick-actions {
   margin-top: 3rem;
 }
@@ -96,7 +137,7 @@
   color: var(--text-primary);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -104,11 +145,13 @@
 }
 
 .quick-btn:hover {
-  background: var(--glass-gold);
+  background: rgba(212, 175, 55, 0.05);
   border-color: var(--primary-gold);
-  transform: translateY(-5px);
+  transform: translateY(-8px);
   color: var(--primary-gold);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 175, 55, 0.2);
 }
+
 
 @media (max-width: 768px) {
   .welcome-card {

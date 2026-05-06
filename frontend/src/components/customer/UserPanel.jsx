@@ -32,6 +32,15 @@ const UserPanel = ({
           <button className="top-btn logout-btn" onClick={handleLogout}>Đăng xuất</button>
         </div>
 
+        {/* --- PREMIUM UPGRADE: VIP BANNER --- */}
+        <div className="user-vip-banner">
+          <div className="vip-banner-content">
+            <span className="vip-badge">MỚI</span>
+            <h4>Đặc quyền tháng này: Giảm 10% cho Bộ Sưu Tập Hoàng Gia 👑</h4>
+          </div>
+          <button className="top-btn btn-gold-sm" style={{ whiteSpace: 'nowrap' }}>Khám phá ngay</button>
+        </div>
+
         <div className="user-quick-actions">
           <h3>🚀 Truy cập nhanh</h3>
           <div className="quick-buttons">

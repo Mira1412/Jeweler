@@ -182,15 +182,32 @@ function App() {
     try {
       setLoading(true)
       const data = await productService.getAllProducts()
-      setProducts(data)
+      if (data && data.length > 0) {
+        setProducts(data)
+      } else {
+        throw new Error("No products found from server");
+      }
     } catch (err) {
-      // Fallback: Dữ liệu mẫu từ demo-data.sql khi backend lỗi
-      setProducts([
-        { id: 1, productName: 'Nhẫn Kim Cương Eternal Love', price: 45000000, category: 'Nhẫn', availability: 10, image: '91854_nhnkimcngeternel.webp' },
-        { id: 2, productName: 'Cặp Nhẫn Cưới Tình Nhân', price: 28000000, category: 'Nhẫn', availability: 5, image: '41673_cpnhncitnhnhn.webp' },
-        { id: 5, productName: 'Dây Chuyền Bạch Kim Ánh Sao', price: 12000000, category: 'Dây chuyền', availability: 15, image: '39280_dychuynbchkimnhsao.webp' },
-        { id: 9, productName: 'Đồng Hồ Nữ Đính Đá Sapphire', price: 65000000, category: 'Đồng hồ', availability: 5, image: '1614_nghnnhsapphire.webp' }
-      ])
+      // Fallback: Dữ liệu mẫu từ demo-data.sql hoặc localStorage khi backend lỗi
+      const savedOfflineProducts = JSON.parse(localStorage.getItem('offline_products'));
+      if (savedOfflineProducts && savedOfflineProducts.length > 0) {
+        setProducts(savedOfflineProducts);
+      } else {
+        const defaultProducts = [
+          { id: 1, productName: 'Nhẫn Kim Cương Eternal Love', price: 45000000, category: 'Nhẫn', availability: 10, image: '91854_nhnkimcngeternel.webp' },
+          { id: 2, productName: 'Cặp Nhẫn Cưới Tình Nhân', price: 28000000, category: 'Nhẫn', availability: 5, image: '41673_cpnhncitnhnhn.webp' },
+          { id: 3, productName: 'Nhẫn Sapphire Biển Xanh', price: 32000000, category: 'Nhẫn', availability: 3, image: null },
+          { id: 4, productName: 'Bông Tai Ngọc Trai South Sea', price: 18500000, category: 'Bông tai', availability: 8, image: null },
+          { id: 5, productName: 'Dây Chuyền Bạch Kim Ánh Sao', price: 12000000, category: 'Dây chuyền', availability: 15, image: '39280_dychuynbchkimnhsao.webp' },
+          { id: 6, productName: 'Dây Chuyền Mặt Ruby Đỏ', price: 55000000, category: 'Dây chuyền', availability: 2, image: null },
+          { id: 7, productName: 'Vòng Tay Ngọc Bích Myanmar', price: 42000000, category: 'Vòng tay', availability: 4, image: '5016_vngtayngcbchmyanmar1.webp' },
+          { id: 8, productName: 'Lắc Tay Kim Cương Tinh Tế', price: 89000000, category: 'Vòng tay', availability: 1, image: null },
+          { id: 9, productName: 'Đồng Hồ Nữ Đính Đá Sapphire', price: 65000000, category: 'Đồng hồ', availability: 5, image: '1614_nghnnhsapphire.webp' },
+          { id: 10, productName: 'Đồng Hồ Nam Cơ Khí Thụy Sĩ', price: 125000000, category: 'Đồng hồ', availability: 3, image: null }
+        ];
+        setProducts(defaultProducts);
+        localStorage.setItem('offline_products', JSON.stringify(defaultProducts));
+      }
     } finally {
       setLoading(false)
     }
@@ -477,6 +494,10 @@ function App() {
       };
       setCurrentUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      const localUsers = JSON.parse(localStorage.getItem('local_users') || '[]');
+      const updatedLocalUsers = localUsers.map(u => (u.id === currentUser.id || u.userName === currentUser.userName) ? { ...u, userDetails: { ...u.userDetails, ...updatedUser.userDetails } } : u);
+      localStorage.setItem('local_users', JSON.stringify(updatedLocalUsers));
+      setUsers(updatedLocalUsers);
       setShowProfileModal(false);
       alert('Cập nhật hồ sơ thành công! (Chế độ Offline)');
     }
@@ -585,6 +606,10 @@ function App() {
       } else if (adminModal === 'deleteUser') {
         setUsers(prev => prev.filter(u => u.id !== adminFormData.id))
       } else if (adminModal === 'addProduct') {
+        let offlineImage = adminFormData.image || '';
+        if (selectedFile) {
+          offlineImage = URL.createObjectURL(selectedFile);
+        }
         const newProduct = {
           id: Date.now(),
           productName: adminFormData.productName,
@@ -592,11 +617,37 @@ function App() {
           discription: adminFormData.discription || '',
           category: adminFormData.category || 'Rings',
           availability: parseInt(adminFormData.availability) || 0,
-          image: adminFormData.image || ''
+          image: offlineImage
         }
-        setProducts(prev => [...prev, newProduct])
+        setProducts(prev => {
+          const updated = [...prev, newProduct];
+          localStorage.setItem('offline_products', JSON.stringify(updated));
+          return updated;
+        });
       } else if (adminModal === 'deleteProduct') {
-        setProducts(prev => prev.filter(p => p.id !== adminFormData.id))
+        setProducts(prev => {
+          const updated = prev.filter(p => p.id !== adminFormData.id);
+          localStorage.setItem('offline_products', JSON.stringify(updated));
+          return updated;
+        });
+      } else if (adminModal === 'editProduct') {
+        let offlineImage = adminFormData.image || '';
+        if (selectedFile) {
+          offlineImage = URL.createObjectURL(selectedFile);
+        }
+        setProducts(prev => {
+          const updated = prev.map(p => p.id === adminFormData.id ? {
+            ...p,
+            productName: adminFormData.productName,
+            price: parseFloat(adminFormData.price),
+            discription: adminFormData.discription || '',
+            category: adminFormData.category || 'Rings',
+            availability: parseInt(adminFormData.availability) || 0,
+            image: offlineImage || p.image
+          } : p);
+          localStorage.setItem('offline_products', JSON.stringify(updated));
+          return updated;
+        });
       } else if (adminModal === 'editOrder') {
          const updatedOrders = orders.map(o => o.id === adminFormData.id ? { ...o, status: adminFormData.status } : o);
          setOrders(updatedOrders);
