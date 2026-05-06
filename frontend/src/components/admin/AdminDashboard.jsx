@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import './AdminDashboard.css';
 
 const AdminDashboard = ({
@@ -19,27 +19,170 @@ const AdminDashboard = ({
   handleFileChange,
   handleAdminSubmit
 }) => {
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const renderStats = () => (
-    <div className="adm-stats-grid">
-      <div className="adm-stat-card">
-        <div className="adm-stat-lbl">TỔNG DOANH THU</div>
-        <div className="adm-stat-val">1.280.000.000₫</div>
-      </div>
-      <div className="adm-stat-card">
-        <div className="adm-stat-lbl">ĐƠN HÀNG</div>
-        <div className="adm-stat-val">42</div>
-      </div>
-      <div className="adm-stat-card">
-        <div className="adm-stat-lbl">SẢN PHẨM</div>
-        <div className="adm-stat-val">{products.length}</div>
-      </div>
-      <div className="adm-stat-card">
-        <div className="adm-stat-lbl">NGƯỜI DÙNG</div>
-        <div className="adm-stat-val">{users.length}</div>
-      </div>
-    </div>
+  // --- LOGIC: DYNAMIC STATS ---
+  const stats = useMemo(() => {
+    const totalRevenue = orders.reduce((sum, o) => o.status === 'Completed' ? sum + (o.total || 0) : sum, 0);
+    const completedOrders = orders.filter(o => o.status === 'Completed').length;
+    const lowStockCount = products.filter(p => p.availability <= 5).length;
+    
+    return {
+      revenue: totalRevenue,
+      orders: orders.length,
+      products: products.length,
+      users: users.length,
+      lowStock: lowStockCount
+    };
+  }, [products, orders, users]);
+
+  // --- LOGIC: FILTERING ---
+  const filteredProducts = useMemo(() => 
+    products.filter(p => p.productName?.toLowerCase().includes(searchTerm.toLowerCase()) || p.id.toString().includes(searchTerm)),
+    [products, searchTerm]
   );
+
+  const filteredUsers = useMemo(() => 
+    users.filter(u => u.userName?.toLowerCase().includes(searchTerm.toLowerCase()) || u.id.toString().includes(searchTerm)),
+    [users, searchTerm]
+  );
+
+  const filteredOrders = useMemo(() => 
+    orders.filter(o => o.id?.toLowerCase().includes(searchTerm.toLowerCase()) || o.customer?.toLowerCase().includes(searchTerm.toLowerCase())),
+    [orders, searchTerm]
+  );
+
+  const renderStats = () => {
+    // --- LOGIC: ADVANCED ANALYTICS ---
+    const categoryStats = products.reduce((acc, p) => {
+      acc[p.category] = (acc[p.category] || 0) + 1;
+      return acc;
+    }, {});
+
+    const topProducts = [...products]
+      .sort((a, b) => (b.sales || 0) - (a.sales || 0))
+      .slice(0, 4);
+
+    return (
+      <div className="adm-overview">
+        <div className="adm-stats-grid">
+          <div className="adm-stat-card animate-slide-up">
+            <div className="adm-stat-icon" style={{background: 'rgba(16, 185, 129, 0.1)', color: '#10b981'}}>💰</div>
+            <div className="adm-stat-info">
+              <div className="adm-stat-lbl">TỔNG DOANH THU</div>
+              <div className="adm-stat-val">{stats.revenue.toLocaleString()}₫</div>
+            </div>
+          </div>
+          <div className="adm-stat-card animate-slide-up" style={{animationDelay: '0.1s'}}>
+            <div className="adm-stat-icon" style={{background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1'}}>📦</div>
+            <div className="adm-stat-info">
+              <div className="adm-stat-lbl">ĐƠN HÀNG</div>
+              <div className="adm-stat-val">{stats.orders}</div>
+            </div>
+          </div>
+          <div className="adm-stat-card animate-slide-up" style={{animationDelay: '0.2s'}}>
+            <div className="adm-stat-icon" style={{background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b'}}>💎</div>
+            <div className="adm-stat-info">
+              <div className="adm-stat-lbl">SẢN PHẨM</div>
+              <div className="adm-stat-val">{stats.products}</div>
+            </div>
+          </div>
+          <div className="adm-stat-card animate-slide-up" style={{animationDelay: '0.3s'}}>
+            <div className="adm-stat-icon" style={{background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7'}}>👥</div>
+            <div className="adm-stat-info">
+              <div className="adm-stat-lbl">NGƯỜI DÙNG</div>
+              <div className="adm-stat-val">{stats.users}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="adm-dash-row">
+          <div className="adm-dash-col">
+            <div className="adm-table-card">
+              <div className="adm-table-hdr">
+                <h3>Phân bổ Danh mục 📊</h3>
+              </div>
+              <div className="adm-analytics-body">
+                {Object.entries(categoryStats).map(([cat, count]) => {
+                  const percent = Math.round((count / products.length) * 100);
+                  return (
+                    <div key={cat} className="adm-progress-item">
+                      <div className="adm-progress-info">
+                        <span>{cat}</span>
+                        <span>{percent}% ({count})</span>
+                      </div>
+                      <div className="adm-progress-bg">
+                        <div className="adm-progress-fill" style={{ width: `${percent}%` }}></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="adm-table-card" style={{marginTop: '24px'}}>
+              <div className="adm-table-hdr">
+                <h3>Người dùng mới nhất 👥</h3>
+              </div>
+              <div className="adm-list-simple">
+                {users.slice(-5).reverse().map(u => (
+                  <div key={u.id} className="adm-list-item">
+                    <div className="adm-item-info">
+                      <strong>{u.userName}</strong>
+                      <span>{u.userDetails?.email || 'No email'}</span>
+                    </div>
+                    <span className="status-badge-sm completed" style={{background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7'}}>USER</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          <div className="adm-dash-col">
+            <div className="adm-table-card">
+              <div className="adm-table-hdr">
+                <h3>Sản phẩm bán chạy 🔥</h3>
+              </div>
+              <div className="adm-list-simple">
+                {topProducts.map((p, idx) => (
+                  <div key={p.id} className="adm-list-item">
+                    <div className="adm-item-rank">{idx + 1}</div>
+                    <div className="adm-img-cell" style={{width: '40px', height: '40px', marginRight: '12px'}}>
+                       {p.image ? (
+                         <img src={`http://localhost:8810/uploads/${p.image}`} alt="" className="adm-img-thumb" />
+                       ) : <div className="adm-img-placeholder" style={{fontSize: '0.8rem'}}>💎</div>}
+                    </div>
+                    <div className="adm-item-info" style={{flex: 1}}>
+                      <strong>{p.productName}</strong>
+                      <span>{p.price?.toLocaleString()}₫</span>
+                    </div>
+                    <span className="adm-badge-gold">HOT</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="adm-table-card" style={{marginTop: '24px'}}>
+              <div className="adm-table-hdr">
+                <h3>Đơn hàng mới nhất ⚡</h3>
+              </div>
+              <div className="adm-list-simple">
+                {orders.slice(0, 5).map(o => (
+                  <div key={o.id} className="adm-list-item">
+                    <div className="adm-item-info">
+                      <strong>Mã {o.id}</strong>
+                      <span>{o.customer} - {o.total.toLocaleString()}₫</span>
+                    </div>
+                    <span className={`status-badge-sm ${o.status.toLowerCase()}`}>{o.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="adm-wrap">
@@ -52,16 +195,16 @@ const AdminDashboard = ({
         </div>
         
         <nav className="adm-nav">
-          <button className={`adm-nav-btn ${adminSection === 'stats' ? 'active' : ''}`} onClick={() => setAdminSection('stats')}>
+          <button className={`adm-nav-btn ${adminSection === 'stats' ? 'active' : ''}`} onClick={() => { setAdminSection('stats'); setSearchTerm(''); }}>
             <span>📊</span> Tổng quan
           </button>
-          <button className={`adm-nav-btn ${adminSection === 'products' ? 'active' : ''}`} onClick={() => setAdminSection('products')}>
+          <button className={`adm-nav-btn ${adminSection === 'products' ? 'active' : ''}`} onClick={() => { setAdminSection('products'); setSearchTerm(''); }}>
             <span>💎</span> Sản phẩm
           </button>
-          <button className={`adm-nav-btn ${adminSection === 'users' ? 'active' : ''}`} onClick={() => setAdminSection('users')}>
+          <button className={`adm-nav-btn ${adminSection === 'users' ? 'active' : ''}`} onClick={() => { setAdminSection('users'); setSearchTerm(''); }}>
             <span>👥</span> Người dùng
           </button>
-          <button className={`adm-nav-btn ${adminSection === 'orders' ? 'active' : ''}`} onClick={() => setAdminSection('orders')}>
+          <button className={`adm-nav-btn ${adminSection === 'orders' ? 'active' : ''}`} onClick={() => { setAdminSection('orders'); setSearchTerm(''); }}>
             <span>📦</span> Đơn hàng
           </button>
         </nav>
@@ -82,12 +225,21 @@ const AdminDashboard = ({
         </header>
 
         <div className="adm-content">
-          {adminSection === 'stats' && renderStats()}
-          
-          {(adminSection === 'products' || adminSection === 'users' || adminSection === 'orders') && (
+          {adminSection === 'stats' ? renderStats() : (
             <div className="adm-table-card">
               <div className="adm-table-hdr">
-                <h3>Danh sách {adminSection === 'products' ? 'Sản phẩm' : adminSection === 'users' ? 'Người dùng' : 'Đơn hàng'}</h3>
+                <div className="adm-hdr-left">
+                  <h3>Danh sách {adminSection === 'products' ? 'Sản phẩm' : adminSection === 'users' ? 'Người dùng' : 'Đơn hàng'}</h3>
+                  <div className="adm-search-box">
+                    <span>🔍</span>
+                    <input 
+                      type="text" 
+                      placeholder="Tìm kiếm..." 
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
                 {adminSection !== 'orders' && (
                   <button className="top-btn btn-gold-sm" onClick={() => setAdminModal(adminSection === 'products' ? 'addProduct' : 'addUser')}>
                     + Thêm mới
@@ -102,6 +254,7 @@ const AdminDashboard = ({
                        <th>ẢNH</th>
                        <th>Tên</th>
                        <th>Danh mục</th>
+                       <th>Kho</th>
                        <th>Giá</th>
                        <th>Thao tác</th>
                     </tr>
@@ -125,7 +278,7 @@ const AdminDashboard = ({
                   )}
                 </thead>
                 <tbody>
-                  {adminSection === 'products' ? products.map(p => (
+                  {adminSection === 'products' ? filteredProducts.map(p => (
                      <tr key={p.id}>
                        <td>#{p.id}</td>
                        <td>
@@ -139,13 +292,18 @@ const AdminDashboard = ({
                        </td>
                        <td>{p.productName}</td>
                        <td>{p.category}</td>
+                       <td>
+                          <span className={p.availability <= 5 ? 'text-danger fw-bold' : ''}>
+                            {p.availability}
+                          </span>
+                       </td>
                        <td>{p.price?.toLocaleString()}₫</td>
                        <td>
                          <button className="adm-btn-edit" onClick={() => { setAdminFormData(p); setAdminModal('editProduct'); }}>Sửa</button>
                          <button className="adm-btn-danger" onClick={() => { setAdminFormData(p); setAdminModal('deleteProduct'); }}>Xóa</button>
                        </td>
                      </tr>
-                  )) : adminSection === 'users' ? users.map(u => (
+                  )) : adminSection === 'users' ? filteredUsers.map(u => (
                     <tr key={u.id}>
                       <td>#{u.id}</td>
                       <td>{u.userName}</td>
@@ -156,7 +314,7 @@ const AdminDashboard = ({
                         <button className="adm-btn-danger" onClick={() => { setAdminFormData(u); setAdminModal('deleteUser'); }}>Xóa</button>
                       </td>
                     </tr>
-                  )) : orders.map(o => (
+                  )) : filteredOrders.map(o => (
                     <tr key={o.id}>
                       <td>{o.id}</td>
                       <td>{o.customer}</td>
@@ -164,16 +322,20 @@ const AdminDashboard = ({
                       <td>{o.total?.toLocaleString()}₫</td>
                       <td>
                         <span className={`status-badge ${o.status.toLowerCase()}`}>
-                          {o.status === 'Completed' ? 'Hoàn thành' : o.status === 'Processing' ? 'Đang xử lý' : 'Chờ duyệt'}
+                          {o.status === 'Completed' ? 'Hoàn thành' : o.status === 'Processing' ? 'Đang xử lý' : o.status === 'Cancelled' ? 'Đã hủy' : 'Chờ duyệt'}
                         </span>
                       </td>
                       <td>
-                        <button className="adm-btn-edit" onClick={() => alert('Chức năng cập nhật đơn hàng đang bảo trì!')}>Sửa</button>
+                        <button className="adm-btn-edit" onClick={() => { setAdminFormData(o); setAdminModal('editOrder'); }}>Sửa</button>
+                        <button className="adm-btn-danger" onClick={() => { setAdminFormData(o); setAdminModal('deleteOrder'); }}>Xóa</button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              {(adminSection === 'products' ? filteredProducts : adminSection === 'users' ? filteredUsers : filteredOrders).length === 0 && (
+                <div className="adm-empty-state">Không tìm thấy dữ liệu phù hợp.</div>
+              )}
             </div>
           )}
         </div>
@@ -216,10 +378,9 @@ const AdminDashboard = ({
                       <div className="adm-form-group">
                         <label>Hình ảnh</label>
                         <input type="file" onChange={handleFileChange} accept="image/*" />
-                        {adminFormData.image && <p style={{fontSize: '0.8rem', color: 'var(--text-muted)'}}>File hiện tại: {adminFormData.image}</p>}
                       </div>
                     </>
-                  ) : (
+                  ) : adminModal.includes('User') ? (
                     <>
                       <div className="adm-form-group">
                         <label>Username</label>
@@ -238,6 +399,26 @@ const AdminDashboard = ({
                         <select name="role" value={adminFormData.role?.roleName || adminFormData.role || 'ROLE_USER'} onChange={handleAdminInputChange}>
                           <option value="ROLE_USER">Người dùng (USER)</option>
                           <option value="ROLE_ADMIN">Quản trị viên (ADMIN)</option>
+                        </select>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="adm-form-group">
+                        <label>Mã Đơn hàng</label>
+                        <input value={adminFormData.id} disabled />
+                      </div>
+                      <div className="adm-form-group">
+                        <label>Khách hàng</label>
+                        <input value={adminFormData.customer} disabled />
+                      </div>
+                      <div className="adm-form-group">
+                        <label>Trạng thái</label>
+                        <select name="status" value={adminFormData.status} onChange={handleAdminInputChange}>
+                          <option value="Pending">Chờ duyệt</option>
+                          <option value="Processing">Đang xử lý</option>
+                          <option value="Completed">Hoàn thành</option>
+                          <option value="Cancelled">Đã hủy</option>
                         </select>
                       </div>
                     </>

@@ -123,6 +123,8 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [adminSection, setAdminSection] = useState('stats')
   const [users, setUsers] = useState([])
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [profileData, setProfileData] = useState({})
   const [orders, setOrders] = useState(() => {
     const offlineOrders = JSON.parse(localStorage.getItem('offline_orders') || '[]');
     return [
@@ -435,6 +437,51 @@ function App() {
     }
   }
 
+  const handleOpenProfile = () => {
+    if (!currentUser) return;
+    setProfileData({
+      firstName: currentUser.userDetails?.firstName || '',
+      lastName: currentUser.userDetails?.lastName || '',
+      email: currentUser.userDetails?.email || '',
+      userName: currentUser.userName
+    });
+    setShowProfileModal(true);
+  }
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        userName: profileData.userName,
+        userDetails: { 
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          email: profileData.email 
+        }
+      };
+      const updatedUser = await userService.updateUser(currentUser.id, payload);
+      setCurrentUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setShowProfileModal(false);
+      alert('Cập nhật hồ sơ thành công!');
+    } catch (err) {
+      // Fallback Offline
+      const updatedUser = {
+        ...currentUser,
+        userDetails: {
+          ...currentUser.userDetails,
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          email: profileData.email
+        }
+      };
+      setCurrentUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setShowProfileModal(false);
+      alert('Cập nhật hồ sơ thành công! (Chế độ Offline)');
+    }
+  }
+
   const handleAdminInputChange = (e) => {
     const { name, value } = e.target;
     setAdminFormData(prev => ({ ...prev, [name]: value }));
@@ -505,6 +552,15 @@ function App() {
         await userService.updateUser(adminFormData.id, payload);
       } else if (adminModal === 'deleteUser') {
         await userService.deleteUser(adminFormData.id);
+      } else if (adminModal === 'editOrder') {
+        // Logic cập nhật trạng thái đơn hàng
+        const updatedOrders = orders.map(o => o.id === adminFormData.id ? { ...o, status: adminFormData.status } : o);
+        setOrders(updatedOrders);
+        localStorage.setItem('offline_orders', JSON.stringify(updatedOrders.filter(o => o.id.startsWith('ORD-'))));
+      } else if (adminModal === 'deleteOrder') {
+        const updatedOrders = orders.filter(o => o.id !== adminFormData.id);
+        setOrders(updatedOrders);
+        localStorage.setItem('offline_orders', JSON.stringify(updatedOrders.filter(o => o.id.startsWith('ORD-'))));
       }
       
       fetchProducts();
@@ -541,6 +597,14 @@ function App() {
         setProducts(prev => [...prev, newProduct])
       } else if (adminModal === 'deleteProduct') {
         setProducts(prev => prev.filter(p => p.id !== adminFormData.id))
+      } else if (adminModal === 'editOrder') {
+         const updatedOrders = orders.map(o => o.id === adminFormData.id ? { ...o, status: adminFormData.status } : o);
+         setOrders(updatedOrders);
+         localStorage.setItem('offline_orders', JSON.stringify(updatedOrders.filter(o => o.id.startsWith('ORD-'))));
+      } else if (adminModal === 'deleteOrder') {
+         const updatedOrders = orders.filter(o => o.id !== adminFormData.id);
+         setOrders(updatedOrders);
+         localStorage.setItem('offline_orders', JSON.stringify(updatedOrders.filter(o => o.id.startsWith('ORD-'))));
       }
       setAdminModal(null)
       setAdminFormData({})
@@ -611,6 +675,7 @@ function App() {
                     cartItemsCount={cart.length}
                     onOpenCart={() => setShowCart(true)}
                     onOpenOrders={handleOpenOrderHistory}
+                    onOpenProfile={handleOpenProfile}
                   />
                 )}
               </div>
@@ -708,8 +773,58 @@ function App() {
           />
         )}
 
-        {/* ChatBot AI - Hiện trên tất cả các trang */}
-        <ChatBot />
+        {showProfileModal && (
+          <div className="adm-overlay" onClick={(e) => e.target.className === 'adm-overlay' && setShowProfileModal(false)}>
+            <div className="adm-modal" style={{maxWidth: '400px'}}>
+              <h3 className="gold-gradient-text" style={{fontSize: '1.5rem', marginBottom: '1.5rem'}}>Hồ Sơ Cá Nhân</h3>
+              <form onSubmit={handleProfileUpdate}>
+                <div className="adm-form">
+                  <div className="adm-form-group">
+                    <label>Họ (Last Name)</label>
+                    <input 
+                      value={profileData.lastName} 
+                      onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+                      required 
+                    />
+                  </div>
+                  <div className="adm-form-group">
+                    <label>Tên (First Name)</label>
+                    <input 
+                      value={profileData.firstName} 
+                      onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
+                      required 
+                    />
+                  </div>
+                  <div className="adm-form-group">
+                    <label>Email</label>
+                    <input 
+                      type="email" 
+                      value={profileData.email} 
+                      onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                      required 
+                    />
+                  </div>
+                  <div className="adm-form-group">
+                    <label>Username (Không thể sửa)</label>
+                    <input value={profileData.userName} disabled style={{opacity: 0.6}} />
+                  </div>
+                </div>
+                <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px'}}>
+                  <button type="button" className="adm-nav-btn" onClick={() => setShowProfileModal(false)}>Hủy</button>
+                  <button type="submit" className="top-btn btn-gold-sm">Lưu thay đổi</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ChatBot AI - Hiện trên tất cả các trang với ngữ cảnh người dùng */}
+        <ChatBot 
+          currentUser={currentUser} 
+          products={products} 
+          orders={orders} 
+          users={users}
+        />
       </main>
     </div>
   )

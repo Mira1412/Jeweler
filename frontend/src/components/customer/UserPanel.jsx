@@ -12,6 +12,7 @@ const UserPanel = ({
   handleAddToCart,
   onOpenCart,
   onOpenOrders,
+  onOpenProfile,
   cartItemsCount
 }) => {
   return (
@@ -46,7 +47,7 @@ const UserPanel = ({
               <span style={{ fontSize: '1.5rem' }}>❤️</span>
               <span>Danh sách yêu thích</span>
             </button>
-            <button className="quick-btn">
+            <button className="quick-btn" onClick={onOpenProfile}>
               <span style={{ fontSize: '1.5rem' }}>👤</span>
               <span>Hồ sơ cá nhân</span>
             </button>

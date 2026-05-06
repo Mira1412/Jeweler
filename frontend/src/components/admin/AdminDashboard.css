@@ -296,3 +296,242 @@
   font-size: 1.2rem;
   opacity: 0.5;
 }
+
+/* --- NEW STYLES --- */
+
+.adm-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.adm-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(30, 41, 59, 0.5);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--adm-glass-border);
+}
+
+.adm-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.adm-stat-lbl {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.adm-stat-val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.adm-dash-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.adm-list-simple {
+  padding: 12px;
+}
+
+.adm-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.adm-list-item:last-child {
+  border-bottom: none;
+}
+
+.adm-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.adm-item-info strong {
+  font-size: 0.85rem;
+  color: #f1f5f9;
+}
+
+.adm-item-info span {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.adm-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.adm-search-box {
+  display: flex;
+  align-items: center;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 4px 12px;
+  gap: 8px;
+  width: 250px;
+}
+
+.adm-search-box input {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.adm-search-box input:focus {
+  outline: none;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.completed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.status-badge.processing { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+.status-badge.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.status-badge.cancelled { background: rgba(244, 63, 94, 0.1); color: #f43f5e; }
+
+.status-badge-sm {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.status-badge-sm.completed { background: #065f46; color: #34d399; }
+.status-badge-sm.processing { background: #1e40af; color: #93c5fd; }
+.status-badge-sm.pending { background: #92400e; color: #fbbf24; }
+.status-badge-sm.cancelled { background: #9f1239; color: #fda4af; }
+
+.text-danger { color: #f43f5e; }
+.fw-bold { font-weight: 700; }
+
+.adm-empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+}
+
+.adm-empty-msg {
+  padding: 20px;
+  text-align: center;
+  color: #475569;
+  font-size: 0.8rem;
+}
+
+/* --- ANALYTICS STYLES --- */
+
+.adm-analytics-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.adm-progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adm-progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.adm-progress-bg {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.adm-progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, #4f46e5, #a855f7);
+  border-radius: 4px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.adm-item-rank {
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #64748b;
+  margin-right: 12px;
+}
+
+.adm-badge-gold {
+  background: rgba(212, 175, 55, 0.1);
+  color: #d4af37;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom Scrollbar for list */
+.adm-list-simple {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.adm-list-simple::-webkit-scrollbar {
+  width: 4px;
+}
+
+.adm-list-simple::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
